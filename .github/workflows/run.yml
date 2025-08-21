@@ -1,38 +1,33 @@
-name: Download Report
+name: Run Report Download
 
 on:
-  schedule:
-    - cron: "0 * * * *"   # every hour
-  workflow_dispatch:      # manual trigger
+  workflow_dispatch:
 
 jobs:
-  download:
+  run-script:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: '3.x'
 
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          playwright install --with-deps chromium   # ✅ install Chromium with dependencies
 
-      - name: Run download script
-        env:
-          SITE_USER: ${{ secrets.SITE_USER }}
-          SITE_PASS: ${{ secrets.SITE_PASS }}
-        run: python scripts/download_report.py
-
-      - name: Commit & Push report
+      - name: Run download_report.py
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add reports/report.csv
-          git commit -m "Auto report update"
+          python scripts/download_report.py
+
+      - name: Save reports to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports/*
+          git commit -m "Add new reports [skip ci]" || echo "No changes to commit"
           git push
