@@ -1,43 +1,31 @@
-name: Download Report
+name: Run Playwright Report Downloader
 
 on:
+  workflow_dispatch: # Manual trigger from GitHub Actions UI
   schedule:
-    - cron: "0 * * * *"   # every hour (UTC)
-  workflow_dispatch:      # manual trigger
-
-permissions:
-  contents: write
+    - cron: "0 6 * * *" # runs every day at 06:00 UTC (adjust as needed)
 
 jobs:
-  download:
+  run-script:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install playwright
-          playwright install chromium
-          playwright install-deps
+          playwright install --with-deps
 
-      - name: Run download script
+      - name: Run script
         env:
-          SITE_USER: ${{ secrets.SITE_USER }}
-          SITE_PASS: ${{ secrets.SITE_PASS }}
-        run: python scripts/download_report.py
-
-      - name: Commit & Push report
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add reports/report.csv
-          git commit -m "Auto report update" || echo "No changes to commit"
-          git push
+          RDM_USERNAME: ${{ secrets.RDM_USERNAME }}
+          RDM_PASSWORD: ${{ secrets.RDM_PASSWORD }}
+        run: python download_report.py
