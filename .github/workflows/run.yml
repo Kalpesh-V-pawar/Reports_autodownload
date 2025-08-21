@@ -25,7 +25,7 @@ jobs:
 
       - name: Run report generator
         run: |
-          python scripts/report_generator.py
+          python scripts/download_report.py
 
       - name: Upload report as artifact
         uses: actions/upload-artifact@v4
