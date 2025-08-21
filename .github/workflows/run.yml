@@ -2,8 +2,11 @@ name: Download Report
 
 on:
   schedule:
-    - cron: "0 * * * *"   # every hour
+    - cron: "0 * * * *"   # every hour (UTC)
   workflow_dispatch:      # manual trigger
+
+permissions:
+  contents: write
 
 jobs:
   download:
@@ -21,7 +24,9 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install playwright
           playwright install chromium
+          playwright install-deps
 
       - name: Run download script
         env:
@@ -34,5 +39,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add reports/report.csv
-          git commit -m "Auto report update"
+          git commit -m "Auto report update" || echo "No changes to commit"
           git push
