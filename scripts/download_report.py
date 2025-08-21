@@ -15,7 +15,7 @@ def run():
         page = context.new_page()
 
         # 1. Login
-        page.goto("https://your-site.com")  # TODO: replace with real URL
+        page.goto("https://sopan.kpix.io/login")  # TODO: replace with real URL
         page.wait_for_selector('xpath=//*[@id="exampleInputEmail"]')
         page.fill('xpath=//*[@id="exampleInputEmail"]', USERNAME)
         page.fill('xpath=//*[@id="exampleInputPassword"]', PASSWORD)
