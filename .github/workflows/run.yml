@@ -1,31 +1,26 @@
-name: Run Playwright Report Downloader
+name: Run Report
 
 on:
-  workflow_dispatch: # Manual trigger from GitHub Actions UI
-  schedule:
-    - cron: "0 6 * * *" # runs every day at 06:00 UTC (adjust as needed)
+  push:   # runs whenever you push changes
+    branches:
+      - main
+  workflow_dispatch:   # allows manual trigger from Actions tab
 
 jobs:
-  run-script:
+  run-report:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          playwright install --with-deps
+        run: pip install -r requirements.txt
 
       - name: Run script
-        env:
-          RDM_USERNAME: ${{ secrets.RDM_USERNAME }}
-          RDM_PASSWORD: ${{ secrets.RDM_PASSWORD }}
         run: python download_report.py
