@@ -39,15 +39,32 @@ const path = require("path");
   // ----------------------------
   // Step 2: Type asset number
   // ----------------------------
+// ----------------------------
+  // Step 2: Type asset number
+  // ----------------------------
   console.log("📌 Typing asset number...");
   const assetInputSel = "#liveDataSelectAsset ng-select input";
   await page.waitForSelector(assetInputSel, { timeout: 10000 });
-  await page.type(assetInputSel, "21074", { delay: 100 });
+  
+  // Type slowly
+  await page.type(assetInputSel, "21074", { delay: 150 });
+  
+  // 🔄 Wait for dropdown to actually render options
+  await page.waitForFunction(
+    () => {
+      const panel = document.querySelector("ng-dropdown-panel");
+      return panel && panel.querySelectorAll(".ng-option").length > 0;
+    },
+    { timeout: 15000 }
+  );
+  
+  // ✅ Click the first available option
+  await page.evaluate(() => {
+    const opt = document.querySelector("ng-dropdown-panel .ng-option");
+    if (opt) opt.click();
+  });
+  console.log("✅ Asset selected");
 
-  // select first dropdown option
-  await page.waitForSelector("ng-dropdown-panel .ng-option");
-  const firstAsset = await page.$("ng-dropdown-panel .ng-option");
-  if (firstAsset) await firstAsset.click();
 
   // ----------------------------
   // Step 3: Select report type
