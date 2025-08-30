@@ -38,32 +38,37 @@ const path = require("path");
 
   // ----------------------------
   // Step 2: Type asset number
-  // ----------------------------
 // ----------------------------
-  // Step 2: Type asset number
+  // Step 2: Open asset dropdown & type asset
   // ----------------------------
   console.log("📌 Typing asset number...");
-  const assetInputSel = "#liveDataSelectAsset ng-select input";
-  await page.waitForSelector(assetInputSel, { timeout: 10000 });
+  const assetInputSelector = "#liveDataSelectAsset input";
   
-  // Type slowly
-  await page.type(assetInputSel, "21074", { delay: 150 });
+  // Wait for input
+  await page.waitForSelector(assetInputSelector, { timeout: 20000 });
+  await page.click(assetInputSelector);
+  await page.type(assetInputSelector, "21074", { delay: 100 });
   
-  // 🔄 Wait for dropdown to actually render options
-  await page.waitForFunction(
-    () => {
-      const panel = document.querySelector("ng-dropdown-panel");
-      return panel && panel.querySelectorAll(".ng-option").length > 0;
-    },
-    { timeout: 15000 }
-  );
+  // Wait for dropdown options (retry for robustness)
+  let option = null;
+  for (let i = 0; i < 3; i++) {
+    try {
+      option = await page.waitForSelector("ng-dropdown-panel .ng-option", { timeout: 5000 });
+      if (option) break;
+    } catch (e) {
+      console.log(`⏳ Retry ${i + 1}: No dropdown yet, typing again...`);
+      await page.click(assetInputSelector, { clickCount: 3 });
+      await page.type(assetInputSelector, "21074", { delay: 100 });
+    }
+  }
   
-  // ✅ Click the first available option
-  await page.evaluate(() => {
-    const opt = document.querySelector("ng-dropdown-panel .ng-option");
-    if (opt) opt.click();
-  });
-  console.log("✅ Asset selected");
+  if (option) {
+    console.log("✅ Selecting first asset option...");
+    await option.click();
+  } else {
+    throw new Error("❌ Asset dropdown options never appeared!");
+  }
+
 
 
   // ----------------------------
