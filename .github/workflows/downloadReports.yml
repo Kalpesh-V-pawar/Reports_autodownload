@@ -1,6 +1,6 @@
 name: Sopan Reports Automation
 
-# Trigger workflow manually or daily at 8 AM
+# Trigger workflow manually or daily at 8 AM IST
 on:
   workflow_dispatch:
   schedule:
@@ -21,10 +21,10 @@ jobs:
         with:
           node-version: "20"
 
-      # 3️⃣ Install dependencies
+      # 3️⃣ Install dependencies (works without package-lock.json)
       - name: Install dependencies
         run: |
-          npm ci
+          npm install
 
       # 4️⃣ Create downloads folder (for CSV)
       - name: Create downloads folder
