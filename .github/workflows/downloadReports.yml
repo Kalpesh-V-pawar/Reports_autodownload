@@ -36,7 +36,7 @@ jobs:
 
       # 6️⃣ Upload CSV as artifact
       - name: Upload CSV
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sopan-csv
           path: downloads/
