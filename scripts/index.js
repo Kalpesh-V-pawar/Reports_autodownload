@@ -3,7 +3,15 @@ const fs = require("fs");
 const path = require("path");
 
 (async () => {
-  const browser = await puppeteer.launch({ headless: true }); // fully server-side
+  const browser = await puppeteer.launch({
+  headless: true,
+  args: [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage'
+  ],
+});
+
   const page = await browser.newPage();
 
   // Set viewport
