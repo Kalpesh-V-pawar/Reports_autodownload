@@ -1,37 +1,42 @@
-name: Daily Reports Download
+name: Sopan Reports Automation
 
+# Trigger workflow manually or daily at 8 AM
 on:
+  workflow_dispatch:
   schedule:
-    - cron: '0 6 * * *'  # Runs daily at 6:00 AM UTC
-  workflow_dispatch:      # Allows manual run
+    - cron: "0 2 * * *" # UTC 2 AM = IST 7:30 AM
 
 jobs:
   download-reports:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repo
+      # 1️⃣ Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2️⃣ Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: "20"
 
+      # 3️⃣ Install dependencies
       - name: Install dependencies
         run: |
-          npm ci || npm install
-          npm install puppeteer
+          npm ci
 
-      - name: Run Puppeteer script
-        run: node scripts/downloadReports.js
+      # 4️⃣ Create downloads folder (for CSV)
+      - name: Create downloads folder
+        run: mkdir -p downloads
 
-      - name: Commit and push CSVs
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add reports/*.csv
-          git commit -m "📥 Daily reports update"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # 5️⃣ Run Puppeteer script
+      - name: Run Sopan Reports Script
+        run: node index.js
+
+      # 6️⃣ Upload CSV as artifact
+      - name: Upload CSV
+        uses: actions/upload-artifact@v3
+        with:
+          name: sopan-csv
+          path: downloads/
