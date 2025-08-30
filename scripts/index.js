@@ -4,17 +4,15 @@ const path = require("path");
 
 (async () => {
   const browser = await puppeteer.launch({
-  headless: true,
-  args: [
-    '--no-sandbox',
-    '--disable-setuid-sandbox',
-    '--disable-dev-shm-usage'
-  ],
-});
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+    ],
+  });
 
   const page = await browser.newPage();
-
-  // Set viewport
   await page.setViewport({ width: 1280, height: 800 });
 
   // ----------------------------
@@ -39,97 +37,96 @@ const path = require("path");
   await page.goto("https://sopan.kpix.io/applications/SopanCMS/reports", { waitUntil: "networkidle2" });
 
   // ----------------------------
-  // Step 2: Open asset dropdown & type asset
+  // Step 2: Type asset number
   // ----------------------------
   console.log("📌 Typing asset number...");
-  const assetXPath = '//*[@id="liveDataSelectAsset"]/ng-select/div/div/div[2]/input';
-  await page.waitForXPath(assetXPath, { timeout: 10000 });
-  const [assetInput] = await page.$x(assetXPath);
-  await assetInput.type("21074", { delay: 100 });
+  const assetInputSel = "#liveDataSelectAsset ng-select input";
+  await page.waitForSelector(assetInputSel, { timeout: 10000 });
+  await page.type(assetInputSel, "21074", { delay: 100 });
 
-  // Wait & select first visible option
-  await page.waitForTimeout(1500);
-  const firstOptionXPath = '//ng-dropdown-panel//div[contains(@class,"ng-option")]';
-  const [firstOption] = await page.$x(firstOptionXPath);
-  if (firstOption) await firstOption.click();
+  // select first dropdown option
+  await page.waitForSelector("ng-dropdown-panel .ng-option");
+  const firstAsset = await page.$("ng-dropdown-panel .ng-option");
+  if (firstAsset) await firstAsset.click();
 
   // ----------------------------
   // Step 3: Select report type
   // ----------------------------
   console.log("📑 Selecting report type...");
-  const reportTypeXPath = '//*[@id="report_type"]';
-  await page.waitForXPath(reportTypeXPath);
-  const [reportType] = await page.$x(reportTypeXPath);
-  if (reportType) {
-    await page.select('#report_type', (await page.$eval('#report_type option:nth-child(2)', o => o.value)));
-  }
+  await page.waitForSelector("#report_type");
+  await page.select(
+    "#report_type",
+    await page.$eval("#report_type option:nth-child(2)", (o) => o.value)
+  );
 
   // ----------------------------
   // Step 4: Pick date
   // ----------------------------
   console.log("📅 Picking date...");
-  const dateInputXPath = '//*[@id="custom"]/div[1]/form/app-date-range-picker/div/input';
-  await page.waitForXPath(dateInputXPath);
-  const [dateInput] = await page.$x(dateInputXPath);
-  await dateInput.click();
+  const dateInputSel = "#custom form app-date-range-picker input";
+  await page.waitForSelector(dateInputSel);
+  await page.click(dateInputSel);
   await page.waitForTimeout(1500);
-  const dateOptionXPath = '/html/body/div[2]/div[1]/ul/li[10]';
-  const [dateOption] = await page.$x(dateOptionXPath);
-  if (dateOption) await dateOption.click();
+  const dateOptionSel = "body > div:nth-of-type(2) ul li:nth-child(10)";
+  if (await page.$(dateOptionSel)) await page.click(dateOptionSel);
 
   // ----------------------------
   // Step 5: Select property
   // ----------------------------
   console.log("⌨️ Selecting property...");
-  const propXPath = '//*[@id="custom"]/div[1]/form/div[2]/ng-select/div/div/div[2]/input';
-  await page.waitForXPath(propXPath);
-  const [propInput] = await page.$x(propXPath);
-  await propInput.type("Some Property", { delay: 100 });
+  const propInputSel = "#custom form div:nth-of-type(2) ng-select div div div:nth-of-type(2) input";
+  await page.waitForSelector(propInputSel);
+  await page.type(propInputSel, "Some Property", { delay: 100 });
   await page.waitForTimeout(1500);
-  const propOptionXPath = '//ng-dropdown-panel//div[contains(@class,"ng-option")]';
-  const [propOption] = await page.$x(propOptionXPath);
-  if (propOption) await propOption.click();
+
+  if (await page.$("ng-dropdown-panel .ng-option")) {
+    await page.click("ng-dropdown-panel .ng-option");
+  }
 
   // ----------------------------
   // Step 6: Check sampling
   // ----------------------------
-  const samplingCheckboxXPath = '//*[@id="checkbox"]';
-  const [samplingCheckbox] = await page.$x(samplingCheckboxXPath);
-  if (samplingCheckbox) {
-    const isChecked = await page.evaluate(el => el.checked, samplingCheckbox);
-    if (!isChecked) await samplingCheckbox.click();
+  console.log("☑️ Checking sampling...");
+  const samplingSel = "#checkbox";
+  if (await page.$(samplingSel)) {
+    const isChecked = await page.$eval(samplingSel, (el) => el.checked);
+    if (!isChecked) await page.click(samplingSel);
   }
 
   // ----------------------------
   // Step 7: Select duration
   // ----------------------------
-  const durationXPath = '//*[@id="samplingFormat"]';
-  const [durationSelect] = await page.$x(durationXPath);
-  if (durationSelect) {
-    await page.select('#samplingFormat', (await page.$eval('#samplingFormat option:nth-child(3)', o => o.value)));
-  }
+  console.log("⏱ Selecting duration...");
+  await page.waitForSelector("#samplingFormat");
+  await page.select(
+    "#samplingFormat",
+    await page.$eval("#samplingFormat option:nth-child(3)", (o) => o.value)
+  );
 
   // ----------------------------
   // Step 8: Click search
   // ----------------------------
-  const searchBtnXPath = '//*[@id="custom"]/div[1]/form/div[6]/button/em';
-  const [searchBtn] = await page.$x(searchBtnXPath);
-  if (searchBtn) {
-    console.log("🔍 Clicking search...");
-    await searchBtn.click();
-    await page.waitForTimeout(20000); // wait for results to load
+  console.log("🔍 Clicking search...");
+  const searchBtnSel = "#custom form div:nth-of-type(6) button em";
+  if (await page.$(searchBtnSel)) {
+    await page.click(searchBtnSel);
+    await page.waitForTimeout(20000);
   }
 
   // ----------------------------
   // Step 9: Download CSV
   // ----------------------------
-  const csvBtnXPath = '//*[@id="custom"]/div[2]/h5/a/em';
-  const [csvBtn] = await page.$x(csvBtnXPath);
+  console.log("⬇️ Clicking CSV Download...");
+  const csvBtnSel = "#custom div:nth-of-type(2) h5 a em";
+  const csvBtn = await page.$(csvBtnSel);
+
   if (csvBtn) {
-    console.log("⬇️ Clicking CSV Download...");
-    const downloadPath = path.resolve('./downloads');
+    const downloadPath = path.resolve("./downloads");
     if (!fs.existsSync(downloadPath)) fs.mkdirSync(downloadPath);
-    await page._client.send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath });
+    await page._client.send("Page.setDownloadBehavior", {
+      behavior: "allow",
+      downloadPath,
+    });
     await csvBtn.click();
     await page.waitForTimeout(5000);
   }
