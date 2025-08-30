@@ -32,7 +32,7 @@ jobs:
 
       # 5️⃣ Run Puppeteer script
       - name: Run Sopan Reports Script
-        run: node index.js
+        run: node scripts/index.js
 
       # 6️⃣ Upload CSV as artifact
       - name: Upload CSV
