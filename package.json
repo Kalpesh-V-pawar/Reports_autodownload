@@ -1,0 +1,11 @@
+{
+  "name": "sopan-reports",
+  "version": "1.0.0",
+  "main": "downloadReports.js",
+  "scripts": {
+    "start": "node scripts/downloadReports.js"
+  },
+  "dependencies": {
+    "puppeteer": "^21.3.0"
+  }
+}
