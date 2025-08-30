@@ -1,11 +1,12 @@
 {
   "name": "sopan-reports",
   "version": "1.0.0",
-  "main": "downloadReports.js",
+  "description": "Automated Sopan Reports Downloader",
+  "main": "index.js",
   "scripts": {
-    "start": "node scripts/downloadReports.js"
+    "start": "node index.js"
   },
   "dependencies": {
-    "puppeteer": "^21.3.0"
+    "puppeteer": "^24.9.0"
   }
 }
